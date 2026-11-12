@@ -35,6 +35,7 @@ from . import icmp6
 from . import ieee80211
 from . import igmp
 from . import ip
+from . import ipfrag
 from . import ip6
 from . import ipx
 from . import llc
