@@ -1,0 +1,65 @@
+{
+  "minimised_sample": {
+    "length": 54,
+    "path": "minimised_sample.bin",
+    "reference_parser": {
+      "exception_message": "",
+      "exception_type": null,
+      "fell_back_to_raw_bytes": true,
+      "layers": [
+        "Ethernet",
+        "IP",
+        "bytes(20)"
+      ],
+      "terminal": "bytes(20)"
+    },
+    "relaxed_parser": {
+      "exception_message": "",
+      "exception_type": null,
+      "fell_back_to_raw_bytes": false,
+      "layers": [
+        "Ethernet",
+        "IP",
+        "RelaxedTCP",
+        "bytes(0)"
+      ],
+      "terminal": "bytes(0)"
+    }
+  },
+  "mutation": "tcp_off_too_small",
+  "original_sample": {
+    "length": 72,
+    "path": "original_sample.bin",
+    "reference_parser": {
+      "exception_message": "",
+      "exception_type": null,
+      "fell_back_to_raw_bytes": true,
+      "layers": [
+        "Ethernet",
+        "IP",
+        "bytes(38)"
+      ],
+      "terminal": "bytes(38)"
+    },
+    "relaxed_parser": {
+      "exception_message": "",
+      "exception_type": null,
+      "fell_back_to_raw_bytes": false,
+      "layers": [
+        "Ethernet",
+        "IP",
+        "RelaxedTCP",
+        "bytes(18)"
+      ],
+      "terminal": "bytes(18)"
+    }
+  },
+  "same_target_layer": {
+    "layer": "TCP",
+    "minimised_reaches_it": true,
+    "original_reaches_it": true
+  },
+  "seed_name": "eth_ip_tcp",
+  "seed_value": 24301,
+  "target_layer": "TCP"
+}
