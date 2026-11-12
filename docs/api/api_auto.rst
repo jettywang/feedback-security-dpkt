@@ -455,6 +455,14 @@ dpkt.ssl_ciphersuites module
     :undoc-members:
     :show-inheritance:
 
+dpkt.tls_fingerprint module
+---------------------------
+
+.. automodule:: dpkt.tls_fingerprint
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 dpkt.stp module
 ---------------
 
