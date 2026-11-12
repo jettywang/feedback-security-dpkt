@@ -1,0 +1,947 @@
+{
+  "pcap": "/Users/apple/Documents/用户反馈项目/run-control/first-five/jobs/FB-20261112-SEC9-008/workspace/checksum_lab/output/checksum_corpus.pcap",
+  "summary": {
+    "total": 24,
+    "by_verdict": {
+      "valid": 8,
+      "mismatch": 6,
+      "inconclusive": 3,
+      "not_present": 7
+    },
+    "by_kind": {
+      "valid": 8,
+      "single_byte_corruption": 6,
+      "truncated": 3,
+      "zero_checksum": 1,
+      "checksum_offload": 6
+    },
+    "all_bytes_unchanged": true,
+    "all_expectations_met": true,
+    "failures": []
+  },
+  "results": [
+    {
+      "name": "valid_v4_tcp_even",
+      "ip_version": 4,
+      "transport": "tcp",
+      "overall": "valid",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "valid",
+          "stored": "0x3c51",
+          "computed": "0x3c51",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        },
+        {
+          "layer": "tcp",
+          "verdict": "valid",
+          "stored": "0x10a7",
+          "computed": "0x10a7",
+          "truncated": false,
+          "byte_range": [
+            20,
+            46
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 60,
+      "raw_ip_len": 46,
+      "bytes_unchanged": true,
+      "expected_overall": "valid",
+      "kind": "valid",
+      "description": "well-formed IPv4 TCP, payload 6 bytes, checksums correct by construction",
+      "expected_layers": {
+        "ipv4": "valid",
+        "tcp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "valid_v4_tcp_odd",
+      "ip_version": 4,
+      "transport": "tcp",
+      "overall": "valid",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "valid",
+          "stored": "0x3c54",
+          "computed": "0x3c54",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        },
+        {
+          "layer": "tcp",
+          "verdict": "valid",
+          "stored": "0x395c",
+          "computed": "0x395c",
+          "truncated": false,
+          "byte_range": [
+            20,
+            43
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 57,
+      "raw_ip_len": 43,
+      "bytes_unchanged": true,
+      "expected_overall": "valid",
+      "kind": "valid",
+      "description": "well-formed IPv4 TCP, payload 3 bytes, checksums correct by construction",
+      "expected_layers": {
+        "ipv4": "valid",
+        "tcp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "valid_v4_udp_even",
+      "ip_version": 4,
+      "transport": "udp",
+      "overall": "valid",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "valid",
+          "stored": "0x3c52",
+          "computed": "0x3c52",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        },
+        {
+          "layer": "udp",
+          "verdict": "valid",
+          "stored": "0x664c",
+          "computed": "0x664c",
+          "truncated": false,
+          "byte_range": [
+            20,
+            34
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 48,
+      "raw_ip_len": 34,
+      "bytes_unchanged": true,
+      "expected_overall": "valid",
+      "kind": "valid",
+      "description": "well-formed IPv4 UDP, payload 6 bytes, checksums correct by construction",
+      "expected_layers": {
+        "ipv4": "valid",
+        "udp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "valid_v4_udp_odd",
+      "ip_version": 4,
+      "transport": "udp",
+      "overall": "valid",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "valid",
+          "stored": "0x3c55",
+          "computed": "0x3c55",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        },
+        {
+          "layer": "udp",
+          "verdict": "valid",
+          "stored": "0x8f04",
+          "computed": "0x8f04",
+          "truncated": false,
+          "byte_range": [
+            20,
+            31
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 45,
+      "raw_ip_len": 31,
+      "bytes_unchanged": true,
+      "expected_overall": "valid",
+      "kind": "valid",
+      "description": "well-formed IPv4 UDP, payload 3 bytes, checksums correct by construction",
+      "expected_layers": {
+        "ipv4": "valid",
+        "udp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "valid_v6_tcp_even",
+      "ip_version": 6,
+      "transport": "tcp",
+      "overall": "valid",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "tcp",
+          "verdict": "valid",
+          "stored": "0xa168",
+          "computed": "0xa168",
+          "truncated": false,
+          "byte_range": [
+            40,
+            66
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 80,
+      "raw_ip_len": 66,
+      "bytes_unchanged": true,
+      "expected_overall": "valid",
+      "kind": "valid",
+      "description": "well-formed IPv6 TCP, payload 6 bytes, checksums correct by construction",
+      "expected_layers": {
+        "tcp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "valid_v6_tcp_odd",
+      "ip_version": 6,
+      "transport": "tcp",
+      "overall": "valid",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "tcp",
+          "verdict": "valid",
+          "stored": "0xca1d",
+          "computed": "0xca1d",
+          "truncated": false,
+          "byte_range": [
+            40,
+            63
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 77,
+      "raw_ip_len": 63,
+      "bytes_unchanged": true,
+      "expected_overall": "valid",
+      "kind": "valid",
+      "description": "well-formed IPv6 TCP, payload 3 bytes, checksums correct by construction",
+      "expected_layers": {
+        "tcp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "valid_v6_udp_even",
+      "ip_version": 6,
+      "transport": "udp",
+      "overall": "valid",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "udp",
+          "verdict": "valid",
+          "stored": "0xf70d",
+          "computed": "0xf70d",
+          "truncated": false,
+          "byte_range": [
+            40,
+            54
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 68,
+      "raw_ip_len": 54,
+      "bytes_unchanged": true,
+      "expected_overall": "valid",
+      "kind": "valid",
+      "description": "well-formed IPv6 UDP, payload 6 bytes, checksums correct by construction",
+      "expected_layers": {
+        "udp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "valid_v6_udp_odd",
+      "ip_version": 6,
+      "transport": "udp",
+      "overall": "valid",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "udp",
+          "verdict": "valid",
+          "stored": "0x1fc6",
+          "computed": "0x1fc6",
+          "truncated": false,
+          "byte_range": [
+            40,
+            51
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 65,
+      "raw_ip_len": 51,
+      "bytes_unchanged": true,
+      "expected_overall": "valid",
+      "kind": "valid",
+      "description": "well-formed IPv6 UDP, payload 3 bytes, checksums correct by construction",
+      "expected_layers": {
+        "udp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "corrupt_payload_v4_tcp_odd",
+      "ip_version": 4,
+      "transport": "tcp",
+      "overall": "mismatch",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "valid",
+          "stored": "0x3c54",
+          "computed": "0x3c54",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        },
+        {
+          "layer": "tcp",
+          "verdict": "mismatch",
+          "stored": "0x395c",
+          "computed": "0x385c",
+          "truncated": false,
+          "byte_range": [
+            20,
+            43
+          ],
+          "reason": "stored 0x395c != recomputed 0x385c"
+        }
+      ],
+      "frame_len": 57,
+      "raw_ip_len": 43,
+      "bytes_unchanged": true,
+      "expected_overall": "mismatch",
+      "kind": "single_byte_corruption",
+      "description": "one payload byte flipped at offset 42; transport checksum must fail",
+      "expected_layers": {
+        "ipv4": "valid",
+        "tcp": "mismatch"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "corrupt_payload_v4_udp_odd",
+      "ip_version": 4,
+      "transport": "udp",
+      "overall": "mismatch",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "valid",
+          "stored": "0x3c55",
+          "computed": "0x3c55",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        },
+        {
+          "layer": "udp",
+          "verdict": "mismatch",
+          "stored": "0x8f04",
+          "computed": "0x8e04",
+          "truncated": false,
+          "byte_range": [
+            20,
+            31
+          ],
+          "reason": "stored 0x8f04 != recomputed 0x8e04"
+        }
+      ],
+      "frame_len": 45,
+      "raw_ip_len": 31,
+      "bytes_unchanged": true,
+      "expected_overall": "mismatch",
+      "kind": "single_byte_corruption",
+      "description": "one payload byte flipped at offset 30; transport checksum must fail",
+      "expected_layers": {
+        "ipv4": "valid",
+        "udp": "mismatch"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "corrupt_payload_v6_tcp_odd",
+      "ip_version": 6,
+      "transport": "tcp",
+      "overall": "mismatch",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "tcp",
+          "verdict": "mismatch",
+          "stored": "0xca1d",
+          "computed": "0xc91d",
+          "truncated": false,
+          "byte_range": [
+            40,
+            63
+          ],
+          "reason": "stored 0xca1d != recomputed 0xc91d"
+        }
+      ],
+      "frame_len": 77,
+      "raw_ip_len": 63,
+      "bytes_unchanged": true,
+      "expected_overall": "mismatch",
+      "kind": "single_byte_corruption",
+      "description": "one payload byte flipped at offset 62; transport checksum must fail",
+      "expected_layers": {
+        "tcp": "mismatch"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "corrupt_payload_v6_udp_odd",
+      "ip_version": 6,
+      "transport": "udp",
+      "overall": "mismatch",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "udp",
+          "verdict": "mismatch",
+          "stored": "0x1fc6",
+          "computed": "0x1ec6",
+          "truncated": false,
+          "byte_range": [
+            40,
+            51
+          ],
+          "reason": "stored 0x1fc6 != recomputed 0x1ec6"
+        }
+      ],
+      "frame_len": 65,
+      "raw_ip_len": 51,
+      "bytes_unchanged": true,
+      "expected_overall": "mismatch",
+      "kind": "single_byte_corruption",
+      "description": "one payload byte flipped at offset 50; transport checksum must fail",
+      "expected_layers": {
+        "udp": "mismatch"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "corrupt_ipv4_ttl_v4_tcp_even",
+      "ip_version": 4,
+      "transport": "tcp",
+      "overall": "mismatch",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "mismatch",
+          "stored": "0x3c51",
+          "computed": "0x3b51",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored 0x3c51 != recomputed 0x3b51"
+        },
+        {
+          "layer": "tcp",
+          "verdict": "valid",
+          "stored": "0x10a7",
+          "computed": "0x10a7",
+          "truncated": false,
+          "byte_range": [
+            20,
+            46
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        }
+      ],
+      "frame_len": 60,
+      "raw_ip_len": 46,
+      "bytes_unchanged": true,
+      "expected_overall": "mismatch",
+      "kind": "single_byte_corruption",
+      "description": "TTL byte flipped at offset 8; IPv4 header checksum must fail, TCP intact",
+      "expected_layers": {
+        "ipv4": "mismatch",
+        "tcp": "valid"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "corrupt_v6src_v6_tcp_even",
+      "ip_version": 6,
+      "transport": "tcp",
+      "overall": "mismatch",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "tcp",
+          "verdict": "mismatch",
+          "stored": "0xa168",
+          "computed": "0xa068",
+          "truncated": false,
+          "byte_range": [
+            40,
+            66
+          ],
+          "reason": "stored 0xa168 != recomputed 0xa068"
+        }
+      ],
+      "frame_len": 80,
+      "raw_ip_len": 66,
+      "bytes_unchanged": true,
+      "expected_overall": "mismatch",
+      "kind": "single_byte_corruption",
+      "description": "IPv6 source address byte flipped; pseudo-header makes TCP checksum fail",
+      "expected_layers": {
+        "tcp": "mismatch"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "truncated_mid_tcp_v4_tcp_even",
+      "ip_version": 4,
+      "transport": "tcp",
+      "overall": "inconclusive",
+      "parse_error": "TCP header needs 20 bytes, only 18 available (missing 2)",
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "inconclusive",
+          "stored": "0x3c51",
+          "computed": null,
+          "truncated": true,
+          "byte_range": [
+            0,
+            46
+          ],
+          "reason": "capture truncated; full declared datagram unavailable"
+        },
+        {
+          "layer": "tcp",
+          "verdict": "inconclusive",
+          "stored": null,
+          "computed": null,
+          "truncated": true,
+          "byte_range": null,
+          "reason": "TCP header needs 20 bytes, only 18 available (missing 2)"
+        }
+      ],
+      "frame_len": 52,
+      "raw_ip_len": 38,
+      "bytes_unchanged": true,
+      "expected_overall": "inconclusive",
+      "kind": "truncated",
+      "description": "snap truncation inside TCP header (offset 38); checksum field incomplete",
+      "expected_layers": {
+        "ipv4": "inconclusive",
+        "tcp": "inconclusive"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "truncated_payload_v6_udp_odd",
+      "ip_version": 6,
+      "transport": "udp",
+      "overall": "inconclusive",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "udp",
+          "verdict": "inconclusive",
+          "stored": "0x1fc6",
+          "computed": null,
+          "truncated": true,
+          "byte_range": [
+            40,
+            49
+          ],
+          "reason": "capture truncated: declared segment 11 bytes but only 9 present; checksum basis incomplete"
+        }
+      ],
+      "frame_len": 63,
+      "raw_ip_len": 49,
+      "bytes_unchanged": true,
+      "expected_overall": "inconclusive",
+      "kind": "truncated",
+      "description": "snap truncation removes 2 payload bytes (IPv6 plen exceeds capture)",
+      "expected_layers": {
+        "udp": "inconclusive"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "truncated_payload_v4_udp_even",
+      "ip_version": 4,
+      "transport": "udp",
+      "overall": "inconclusive",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "inconclusive",
+          "stored": "0x3c52",
+          "computed": null,
+          "truncated": true,
+          "byte_range": [
+            0,
+            34
+          ],
+          "reason": "capture truncated; full declared datagram unavailable"
+        },
+        {
+          "layer": "udp",
+          "verdict": "inconclusive",
+          "stored": "0x664c",
+          "computed": null,
+          "truncated": true,
+          "byte_range": [
+            20,
+            31
+          ],
+          "reason": "capture truncated: declared segment 14 bytes but only 11 present; checksum basis incomplete"
+        }
+      ],
+      "frame_len": 45,
+      "raw_ip_len": 31,
+      "bytes_unchanged": true,
+      "expected_overall": "inconclusive",
+      "kind": "truncated",
+      "description": "snap truncation removes 3 bytes; IP total length exceeds capture",
+      "expected_layers": {
+        "ipv4": "inconclusive",
+        "udp": "inconclusive"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "zero_udp_checksum_v4",
+      "ip_version": 4,
+      "transport": "udp",
+      "overall": "not_present",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "valid",
+          "stored": "0x3c52",
+          "computed": "0x3c52",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        },
+        {
+          "layer": "udp",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            20,
+            34
+          ],
+          "reason": "IPv4 UDP checksum explicitly disabled (RFC 768 zero value)"
+        }
+      ],
+      "frame_len": 48,
+      "raw_ip_len": 34,
+      "bytes_unchanged": true,
+      "expected_overall": "not_present",
+      "kind": "zero_checksum",
+      "description": "IPv4 UDP checksum field zero: sender disabled it (RFC 768); not verifiable",
+      "expected_layers": {
+        "ipv4": "valid",
+        "udp": "not_present"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "offload_l4zero_tcp_v4",
+      "ip_version": 4,
+      "transport": "tcp",
+      "overall": "not_present",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "valid",
+          "stored": "0x3c51",
+          "computed": "0x3c51",
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "stored checksum matches independent recomputation"
+        },
+        {
+          "layer": "tcp",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            20,
+            46
+          ],
+          "reason": "zero transport checksum: not computed by sender (offload/disabled); no integrity evidence"
+        }
+      ],
+      "frame_len": 60,
+      "raw_ip_len": 46,
+      "bytes_unchanged": true,
+      "expected_overall": "not_present",
+      "kind": "checksum_offload",
+      "description": "L4-only offload: zero TCP checksum, IPv4 header checksum intact",
+      "expected_layers": {
+        "ipv4": "valid",
+        "tcp": "not_present"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "offload_tso_tcp_v4",
+      "ip_version": 4,
+      "transport": "tcp",
+      "overall": "not_present",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "zero IPv4 header checksum: offload/TSO artifact, no integrity evidence"
+        },
+        {
+          "layer": "tcp",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            20,
+            46
+          ],
+          "reason": "zero transport checksum: not computed by sender (offload/disabled); no integrity evidence"
+        }
+      ],
+      "frame_len": 60,
+      "raw_ip_len": 46,
+      "bytes_unchanged": true,
+      "expected_overall": "not_present",
+      "kind": "checksum_offload",
+      "description": "TSO/GSO capture: zero IPv4 header AND zero TCP checksums; dpkt bytes() would fabricate both",
+      "expected_layers": {
+        "ipv4": "not_present",
+        "tcp": "not_present"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "offload_tso_udp_v4",
+      "ip_version": 4,
+      "transport": "udp",
+      "overall": "not_present",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "zero IPv4 header checksum: offload/TSO artifact, no integrity evidence"
+        },
+        {
+          "layer": "udp",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            20,
+            34
+          ],
+          "reason": "IPv4 UDP checksum explicitly disabled (RFC 768 zero value)"
+        }
+      ],
+      "frame_len": 48,
+      "raw_ip_len": 34,
+      "bytes_unchanged": true,
+      "expected_overall": "not_present",
+      "kind": "checksum_offload",
+      "description": "TSO/GSO capture with zero IPv4 header and zero UDP checksums",
+      "expected_layers": {
+        "ipv4": "not_present",
+        "udp": "not_present"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "offload_l4zero_tcp_v6",
+      "ip_version": 6,
+      "transport": "tcp",
+      "overall": "not_present",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "tcp",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            40,
+            66
+          ],
+          "reason": "zero transport checksum: not computed by sender (offload/disabled); no integrity evidence"
+        }
+      ],
+      "frame_len": 80,
+      "raw_ip_len": 66,
+      "bytes_unchanged": true,
+      "expected_overall": "not_present",
+      "kind": "checksum_offload",
+      "description": "zero TCP checksum over IPv6 (offload); dpkt bytes() always fabricates it",
+      "expected_layers": {
+        "tcp": "not_present"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "offload_l4zero_udp_v6",
+      "ip_version": 6,
+      "transport": "udp",
+      "overall": "not_present",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "udp",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            40,
+            54
+          ],
+          "reason": "zero transport checksum: not computed by sender (offload/disabled); no integrity evidence"
+        }
+      ],
+      "frame_len": 68,
+      "raw_ip_len": 54,
+      "bytes_unchanged": true,
+      "expected_overall": "not_present",
+      "kind": "checksum_offload",
+      "description": "zero UDP checksum over IPv6: illegal per RFC 8200, commonly an offload artifact",
+      "expected_layers": {
+        "udp": "not_present"
+      },
+      "expectation_met": true
+    },
+    {
+      "name": "offload_tso_tcp_v4",
+      "ip_version": 4,
+      "transport": "tcp",
+      "overall": "not_present",
+      "parse_error": null,
+      "verdicts": [
+        {
+          "layer": "ipv4",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            0,
+            20
+          ],
+          "reason": "zero IPv4 header checksum: offload/TSO artifact, no integrity evidence"
+        },
+        {
+          "layer": "tcp",
+          "verdict": "not_present",
+          "stored": "0x0000",
+          "computed": null,
+          "truncated": false,
+          "byte_range": [
+            20,
+            46
+          ],
+          "reason": "zero transport checksum: not computed by sender (offload/disabled); no integrity evidence"
+        }
+      ],
+      "frame_len": 60,
+      "raw_ip_len": 46,
+      "bytes_unchanged": true,
+      "expected_overall": "not_present",
+      "kind": "checksum_offload",
+      "description": "TSO/GSO capture: zero IPv4 header AND zero TCP checksums; dpkt bytes() would fabricate both",
+      "expected_layers": {
+        "ipv4": "not_present",
+        "tcp": "not_present"
+      },
+      "expectation_met": true
+    }
+  ]
+}
