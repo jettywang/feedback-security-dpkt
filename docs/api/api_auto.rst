@@ -479,6 +479,14 @@ dpkt.tcp module
     :undoc-members:
     :show-inheritance:
 
+dpkt.tcpsummary module
+----------------------
+
+.. automodule:: dpkt.tcpsummary
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 dpkt.telnet module
 ------------------
 
