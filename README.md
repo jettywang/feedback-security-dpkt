@@ -15,5 +15,11 @@ pip install dpkt
 ### Examples and Documentation
 - [Main Docs for DPKT](https://kbandla.github.io/dpkt)
 
+### Offline DNS response correlation
+- `dpkt/dns_correlator.py` correlates DNS queries with their responses beyond the
+  transaction ID (endpoints + full question section), handling port reuse, query
+  retransmission, responses read before their query and contradictory answer sets.
+  See `examples/dns_response_correlation.py` for a runnable demonstration.
+
 
 
