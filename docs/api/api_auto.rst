@@ -119,6 +119,14 @@ dpkt.dtp module
     :undoc-members:
     :show-inheritance:
 
+dpkt.encapview module
+---------------------
+
+.. automodule:: dpkt.encapview
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 dpkt.esp module
 ---------------
 

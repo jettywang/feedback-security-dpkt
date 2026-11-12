@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+- Added `dpkt.encapview`, an offline encapsulation view that returns the
+  Ethernet/VLAN/IP/GRE-to-transport path in wire order with the original byte
+  range of each confirmed layer. It reuses the existing decoders, never treats
+  an unknown payload as IP based on byte resemblance, and marks the endpoint
+  incomplete (truncated, unknown protocol, malformed, fragmented or depth
+  limit) while retaining every layer confirmed so far. Normal packet decoding
+  is unchanged and can be used independently.
+
 ## 1.9.8
 **[2022-08-17]**
 - Fixed endianness issues in PCAPNG, Loopback
