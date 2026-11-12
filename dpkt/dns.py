@@ -1,6 +1,29 @@
 # $Id: dns.py 27 2006-11-21 01:22:52Z dahelder $
 # -*- coding: utf-8 -*-
-"""Domain Name System."""
+"""Domain Name System.
+
+DNS names are wire-format label sequences, not UTF-8 strings. The name
+helpers in this module therefore preserve raw label bytes and provide a
+separate printable presentation form:
+
+* :func:`unpack_name_raw` returns ``(labels, offset)`` where ``labels`` is a
+  tuple of the original, uncompressed ``bytes`` labels.
+* :func:`format_name` renders labels safely: dots inside a label become
+  ``\\.``, backslashes become ``\\\\``, and control/non-ASCII bytes become
+  ``\\xHH``. It never emits CR, LF, NUL or other control characters.
+* :func:`unpack_name` returns a :class:`DNSName`, a ``str`` subclass whose
+  text value is that display form and whose ``labels``/``key`` attributes are
+  the raw label tuple.
+
+Compatibility boundary for the existing text interface: ordinary ASCII names
+still compare exactly as before (``q.name == 'google.com'``), and a plain
+presentation-form string passed to :func:`pack_name` still uses dots as label
+separators. Strings containing escapes produced by :func:`format_name` are
+decoded on write, so display escapes never become literal wire bytes. Callers
+that need to distinguish a literal dot inside a label from a label separator
+must use ``DNSName.labels``/``DNSName.key`` (or raw-label input), not the
+ambiguous raw dotted-bytes form.
+"""
 from __future__ import print_function
 from __future__ import absolute_import
 
@@ -64,31 +87,218 @@ DNS_HESIOD = 4
 DNS_ANY = 255
 
 
+def _escape_label(label):
+    """Return a printable, unambiguous presentation form of one raw label."""
+    parts = []
+    for b in bytearray(label):
+        if b == 0x5c:  # backslash
+            parts.append('\\\\')
+        elif b == 0x2e:  # dot: a literal dot inside a label
+            parts.append('\\.')
+        elif 0x21 <= b <= 0x7e:
+            parts.append(chr(b))
+        else:
+            # Never emit a literal control character, including CR/LF/NUL.
+            parts.append('\\x%02x' % b)
+    return ''.join(parts)
+
+
+def format_name(labels):
+    """Return the safe display form of a sequence of raw DNS labels.
+
+    Labels are joined with ``.``. A dot inside a single label is escaped as
+    ``\\.`` so that one label containing a dot cannot be confused with two
+    labels. Backslashes are escaped as ``\\\\`` and every non-printable byte
+    (including CR/LF and other control bytes) is rendered as ``\\xHH``.
+    Therefore the result never contains a control character and is distinct
+    for distinct label sequences.
+    """
+    labels = _coerce_labels(labels)
+    return '.'.join(_escape_label(label) for label in labels)
+
+
+def _presentation_to_labels(name):
+    """Parse a DNS presentation-form string into raw labels.
+
+    This is the inverse of :func:`format_name` for the escapes this module
+    generates (``\\\\.``, ``\\\\`` and ``\\xHH``), and also accepts the
+    traditional three-digit ``\\DDD`` byte escape. Unescaped dots separate
+    labels.
+    """
+    buf = codecs.encode(name, 'utf-8', 'surrogateescape')
+    labels = []
+    label = bytearray()
+    i = 0
+    while i < len(buf):
+        c = compat_ord(buf[i])
+        if c == 0x5c:  # backslash escape
+            i += 1
+            if i >= len(buf):
+                label.append(0x5c)
+                break
+            esc = compat_ord(buf[i])
+            if esc in (0x5c, 0x2e):  # \\ and \.
+                label.append(esc)
+                i += 1
+            elif esc in (0x78, 0x58):  # \xHH
+                hex_digits = buf[i + 1:i + 3]
+                if len(hex_digits) == 2 and all(compat_ord(h) in b'0123456789abcdefABCDEF' for h in hex_digits):
+                    label.append(int(codecs.decode(hex_digits, 'ascii'), 16))
+                    i += 3
+                else:
+                    label.append(0x5c)
+                    label.append(esc)
+                    i += 1
+            elif 0x30 <= esc <= 0x39:  # traditional \DDD
+                dec_digits = buf[i:i + 3]
+                if len(dec_digits) == 3 and all(0x30 <= compat_ord(d) <= 0x39 for d in dec_digits):
+                    value = int(codecs.decode(dec_digits, 'ascii'), 10)
+                    if value <= 255:
+                        label.append(value)
+                        i += 3
+                        continue
+                label.append(0x5c)
+                label.append(esc)
+                i += 1
+            else:
+                # Not one of our generated escapes: keep the backslash so no
+                # input bytes are silently lost.
+                label.append(0x5c)
+                label.append(esc)
+                i += 1
+        elif c == 0x2e:  # label separator
+            labels.append(bytes(label))
+            del label[:]
+            i += 1
+        else:
+            label.append(c)
+            i += 1
+    labels.append(bytes(label))
+    if labels and labels[-1] == b'':
+        labels.pop()  # trailing dot (or the empty root name) is not a label
+    return tuple(labels)
+
+
+def _coerce_labels(name):
+    """Normalize the supported name inputs into a tuple of raw labels."""
+    if isinstance(name, DNSName):
+        return name.labels
+    if isinstance(name, (bytes, bytearray)):
+        raw = bytes(name)
+        if not raw:
+            return ()
+        labels = tuple(raw.split(b'.'))
+        if labels and labels[-1] == b'':
+            labels = labels[:-1]  # tolerate a trailing root dot
+        return labels
+    if isinstance(name, str):
+        # The text interface is DNS presentation form, not wire bytes. Escapes
+        # produced by format_name() must be decoded before packing.
+        return _presentation_to_labels(name)
+    labels = []
+    for label in name:
+        if isinstance(label, str):
+            label = codecs.encode(label, 'utf-8', 'surrogateescape')
+        elif isinstance(label, bytearray):
+            label = bytes(label)
+        elif not isinstance(label, bytes):
+            label = bytes(label)
+        labels.append(label)
+    if labels and labels[-1] == b'':
+        labels = labels[:-1]
+    return tuple(labels)
+
+
+class DNSName(str):
+    """A DNS name with both raw labels and a safe textual presentation.
+
+    The object is a ``str`` subclass so that historical comparisons such as
+    ``dns.qd[0].name == 'google.com'`` continue to work for ordinary ASCII
+    names. The string value (and ``str(name)``) is the escaped, printable
+    display form produced by :func:`format_name`; it is not the wire form and
+    must not be used as an identity key for names whose labels matter.
+
+    Attributes:
+        labels: tuple of the original label bytes, in order. Compressed names
+            are expanded to the referenced labels. Use this (or ``key``) as a
+            stable alert/identity key.
+        key: alias for ``labels``.
+        display: the safe printable presentation form.
+    """
+
+    def __new__(cls, labels=()):
+        if isinstance(labels, DNSName):
+            return labels
+        if isinstance(labels, str):
+            labels = _presentation_to_labels(labels)
+        else:
+            labels = _coerce_labels(labels)
+        display = format_name(labels)
+        obj = str.__new__(cls, display)
+        obj._labels = tuple(labels)
+        return obj
+
+    @property
+    def labels(self):
+        return self._labels
+
+    @property
+    def raw_labels(self):
+        return self._labels
+
+    @property
+    def raw(self):
+        """Alias for ``labels``; the uncompressed original label bytes."""
+        return self._labels
+
+    @property
+    def key(self):
+        return self._labels
+
+    @property
+    def display(self):
+        return str.__str__(self)
+
+    def __reduce__(self):
+        return (self.__class__, (self._labels,))
+
+
 def pack_name(name, off, label_ptrs):
-    name = codecs.encode(name, 'utf-8')
-    if name:
-        labels = name.split(b'.')
-    else:
-        labels = []
-    labels.append(b'')
+    """Pack a DNS name, preserving raw label boundaries.
+
+    ``name`` may be a :class:`DNSName`, a sequence of raw label bytes, raw
+    dotted bytes, or a presentation-form string. For a presentation string,
+    escaped dots/backslashes/bytes are decoded first, so ``str(name)`` can be
+    written back without its display escapes becoming literal bytes.
+    """
+    labels = _coerce_labels(name)
+    if not labels:
+        return b'\0'
     buf = b''
     for i, label in enumerate(labels):
-        key = b'.'.join(labels[i:]).upper()
+        # Use the label tuple, not a dotted string, as the compression key so
+        # that b'a.b' (one label) cannot collide with b'a', b'b' (two labels).
+        key = tuple(x.upper() for x in labels[i:])
         ptr = label_ptrs.get(key)
         if ptr is None:
-            if len(key) > 1:
-                ptr = off + len(buf)
-                if ptr < 0xc000:
-                    label_ptrs[key] = ptr
+            ptr = off + len(buf)
+            # A compression pointer only has 14 offset bits.
+            if ptr < 0x4000:
+                label_ptrs[key] = ptr
             i = len(label)
-            buf += struct.pack("B", i) + label
+            buf += struct.pack('B', i) + label
         else:
-            buf += struct.pack('>H', (0xc000 | ptr))
-            break
-    return buf
+            return buf + struct.pack('>H', (0xc000 | ptr))
+    return buf + b'\0'
 
 
-def unpack_name(buf, off):
+def unpack_name_raw(buf, off):
+    """Return (tuple of raw label bytes, offset after the name).
+
+    Label compression pointers are followed and expanded into the referenced
+    labels. No text decoding is performed, so a non-UTF-8 label or a label
+    containing dots/control bytes never aborts parsing of the whole packet.
+    """
     name = []
     saved_off = 0
     start_off = off
@@ -110,7 +320,9 @@ def unpack_name(buf, off):
             start_off = off = ptr
         elif (n & 0xc0) == 0x00:
             off += 1
-            name.append(buf[off:off + n])
+            if off + n > len(buf):
+                raise dpkt.NeedData('label extends past end of packet')
+            name.append(bytes(buf[off:off + n]))
             name_length += n + 1
             if name_length > 255:
                 raise dpkt.UnpackError('name longer than 255 bytes')
@@ -119,7 +331,23 @@ def unpack_name(buf, off):
             raise dpkt.UnpackError('Invalid label length %02x' % n)
     if not saved_off:
         saved_off = off
-    return codecs.decode(b'.'.join(name), 'utf-8'), saved_off
+    return tuple(name), saved_off
+
+
+def unpack_name(buf, off):
+    """Return (DNSName, offset after the name).
+
+    ``DNSName`` behaves like the historical text string for ordinary names and
+    exposes the raw labels via ``.labels``. Its text form is the escaped
+    printable display form from :func:`format_name`.
+    """
+    labels, off = unpack_name_raw(buf, off)
+    return DNSName(labels), off
+
+
+def pack_name_labels(labels, off, label_ptrs):
+    """Pack raw labels (see :func:`unpack_name_raw`)."""
+    return pack_name(labels, off, label_ptrs)
 
 
 class DNS(dpkt.Packet):
@@ -593,6 +821,150 @@ def test_pack_name():
     # Empty name is \0
     x = pack_name('', 0, {})
     assert x == b'\0'
+
+
+def _dns_query_with_names(label_sets):
+    """Build a DNS query message with one question per raw label sequence."""
+    buf = struct.pack('>HHHHHH', 0x1234, DNS_RD, len(label_sets), 0, 0, 0)
+    for labels in label_sets:
+        buf += pack_name(labels, len(buf), {})
+        buf += struct.pack('>HH', DNS_A, DNS_IN)
+    return buf
+
+
+def test_name_raw_labels_non_utf8():
+    labels = (b'\xff\xfe\x80', b'example', b'com')
+    name = DNSName(labels)
+    assert name.labels == labels
+    assert name.key == labels
+    assert name == '\\xff\\xfe\\x80.example.com'
+    assert unpack_name(pack_name(labels, 0, {}), 0)[0].labels == labels
+
+
+def test_name_label_with_dot_distinct():
+    one_label = DNSName((b'a.b',))
+    two_labels = DNSName((b'a', b'b'))
+    assert one_label.labels != two_labels.labels
+    assert one_label.display == 'a\\.b'
+    assert two_labels.display == 'a.b'
+    assert one_label.display != two_labels.display
+    assert pack_name(one_label, 0, {}) == b'\x03a.b\x00'
+    assert pack_name(two_labels, 0, {}) == b'\x01a\x01b\x00'
+
+
+def test_name_no_control_characters_in_display():
+    labels = (b'a\rb', b'x\x00y', b'\x1b[31m', b'ok')
+    name = DNSName(labels)
+    display = name.display
+    assert '\r' not in display and '\n' not in display and '\x00' not in display
+    assert '\x1b' not in display
+    assert display == 'a\\x0db.x\\x00y.\\x1b[31m.ok'
+    assert str(name) == display
+
+
+def test_name_display_roundtrip_is_not_wire_escape():
+    labels = (b'a.b', b'c\\d', b'\x01\xff')
+    name = DNSName(labels)
+    # str(name) includes presentation escapes; writing it back must decode the
+    # escapes into the original label bytes, not store them literally.
+    assert _coerce_labels(str(name)) == labels
+    assert _coerce_labels(name.display) == labels
+    assert pack_name(str(name), 0, {}) == pack_name(labels, 0, {})
+    assert unpack_name(pack_name(str(name), 0, {}), 0)[0].labels == labels
+
+
+def test_compressed_names_use_same_rules():
+    raw = struct.pack('>HHHHHH', 0x1234, DNS_RD, 2, 0, 0, 0)
+    raw += b'\x03a.b\x00' + struct.pack('>HH', DNS_A, DNS_IN)
+    raw += b'\xc0\x0c' + struct.pack('>HH', DNS_A, DNS_IN)
+    dns = DNS(raw)
+    assert dns.qd[0].name.labels == (b'a.b',)
+    assert dns.qd[1].name.labels == (b'a.b',)
+    assert dns.qd[0].name.display == dns.qd[1].name.display == 'a\\.b'
+    assert bytes(dns) == raw
+
+
+def test_rr_names_use_same_rules():
+    raw = struct.pack('>HHHHHH', 0x1234, DNS_RD, 1, 3, 0, 0)
+    raw += b'\x03a.b\x00' + struct.pack('>HH', DNS_A, DNS_IN)
+    # CNAME target: labels (non-UTF-8, literal '.'-containing label)
+    cname_rdata = b'\x02\xff\xfe\x04.com\x00'
+    raw += b'\xc0\x0c' + struct.pack('>HHIH', DNS_CNAME, DNS_IN, 1, len(cname_rdata)) + cname_rdata
+    # MX target: non-UTF-8 label, with preference word before the name
+    mx_rdata = b'\x00\x0a\x02q\xff\x03com\x00'
+    raw += b'\xc0\x0c' + struct.pack('>HHIH', DNS_MX, DNS_IN, 1, len(mx_rdata)) + mx_rdata
+    # NS target: label containing a NUL byte
+    ns_rdata = b'\x03a\x00b\x03com\x00'
+    raw += b'\xc0\x0c' + struct.pack('>HHIH', DNS_NS, DNS_IN, 1, len(ns_rdata)) + ns_rdata
+    dns = DNS(raw)
+    assert dns.an[0].cname.labels == (b'\xff\xfe', b'.com')
+    assert dns.an[0].cname.display == '\\xff\\xfe.\\.com'
+    assert dns.an[1].mxname.labels == (b'q\xff', b'com')
+    assert dns.an[2].nsname.labels == (b'a\x00b', b'com')
+    assert bytes(dns) == raw
+
+
+def test_name_compression_key_distinguishes_label_boundaries():
+    label_ptrs = {}
+    # Old dotted-string keys made these two names look identical.
+    one_label = pack_name((b'A.B', b'c'), 0, label_ptrs)
+    two_labels = pack_name((b'A', b'B', b'c'), len(one_label), label_ptrs)
+    assert one_label == b'\x03A.B\x01c\x00'
+    assert two_labels == b'\x01A\x01B\xc0\x04'
+    # Reusing the suffix pointer is still valid and expands to both labels.
+    packed = one_label + two_labels
+    assert unpack_name(packed, 0)[0].labels == (b'A.B', b'c')
+    assert unpack_name(packed, len(one_label))[0].labels == (b'A', b'B', b'c')
+
+
+def test_name_compression_pointer_offset_limit():
+    label_ptrs = {}
+    # A pointer can only encode a 14-bit offset. Names at or above 0x4000
+    # must be written in full and must not be recorded as valid targets.
+    packed = pack_name((b'aa', b'bb'), 0x4000, label_ptrs)
+    assert packed == b'\x02aa\x02bb\x00'
+    assert label_ptrs == {}
+    assert unpack_name_raw(packed, 0)[0] == (b'aa', b'bb')
+
+
+def test_alert_keys_do_not_collide():
+    label_sets = [
+        (b'a.b',),
+        (b'a', b'b'),
+        (b'a\\.b',),
+        (b'\xff',),
+        (b'a\rb',),
+        (b'a', b'\rb'),
+    ]
+    raw = _dns_query_with_names(label_sets)
+    dns = DNS(raw)
+    assert [q.name.labels for q in dns.qd] == label_sets
+    keys = [q.name.key for q in dns.qd]
+    assert len(keys) == len(set(keys))
+    displays = [q.name.display for q in dns.qd]
+    assert len(displays) == len(set(displays))
+    assert bytes(dns) == raw
+
+
+def test_non_utf8_name_does_not_drop_packet():
+    raw = struct.pack('>HHHHHH', 0x1234, DNS_RD, 2, 1, 0, 0)
+    raw += b'\x03a.b\x00' + struct.pack('>HH', DNS_A, DNS_IN)
+    raw += b'\x02\xff\xfe\x03com\x00' + struct.pack('>HH', DNS_A, DNS_IN)
+    raw += b'\xc0\x0c' + struct.pack('>HHIH', DNS_A, DNS_IN, 1, 4) + b'\x01\x02\x03\x04'
+    dns = DNS(raw)
+    assert dns.qd[0].name.labels == (b'a.b',)
+    assert dns.qd[1].name.labels == (b'\xff\xfe', b'com')
+    assert dns.an[0].ip == b'\x01\x02\x03\x04'
+    assert bytes(dns) == raw
+
+
+def test_name_text_interface_is_presentation_form():
+    # Unescaped text keeps its historical meaning: dots separate labels.
+    assert DNSName('google.com').labels == (b'google', b'com')
+    assert DNSName('google.com').display == 'google.com'
+    assert pack_name('google.com', 0, {}) == b'\x06google\x03com\x00'
+    # Literal non-escaped control characters still never leak into display.
+    assert DNSName((b'a\nb',)).display == 'a\\x0ab'
 
 
 @TryExceptException(dpkt.UnpackError)
